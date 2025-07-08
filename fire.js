@@ -269,13 +269,13 @@ a[x-apple-data-detectors],
                       <td align="center" style="padding:0;Margin:0;padding-top:10px;padding-bottom:10px;font-size:0px"><img src="https://fviecfq.stripocdn.email/content/guids/CABINET_c48bd15f582d0aa5de2116e461847d54b29f984cdc74c69748500443233fcb7a/images/istockphoto1323529010612x612.jpg" alt="" width="100" class="adapt-img" style="display:block;font-size:14px;border:0;outline:none;text-decoration:none"></td>
                      </tr>
                      <tr>
-                      <td align="center" style="padding:0;Margin:0;padding-bottom:10px"><h1 class="es-m-txt-c" style="Margin:0;font-family:arial, 'helvetica neue', helvetica, sans-serif;mso-line-height-rule:exactly;letter-spacing:0;font-size:46px;font-style:normal;font-weight:bold;line-height:46px;color:#333333">Risque incendie <span style"color:${color}">${risk}</span></h1></td>
+                      <td align="center" style="padding:0;Margin:0;padding-bottom:10px"><h1 class="es-m-txt-c" style="Margin:0;font-family:arial, 'helvetica neue', helvetica, sans-serif;mso-line-height-rule:exactly;letter-spacing:0;font-size:46px;font-style:normal;font-weight:bold;line-height:46px;color:#333333">Risque incendie <span style="color:${color}">${risk}</span></h1></td>
                      </tr>
                      <tr>
                       <td align="center" class="es-m-p0r es-m-p0l" style="Margin:0;padding-top:5px;padding-right:40px;padding-bottom:5px;padding-left:40px"><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">${advise}</p></td>
                      </tr>
                      <tr>
-                      <td align="center" style="padding:0;Margin:0;padding-top:10px;padding-bottom:5px"><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">D'autres mesures peuvent être appliquées par les autorités locales, veillez à vous renseigner avant de vous engager dans ce secteur.</p></td>
+                      <td align="center" style="padding:0;Margin:0;padding-top:10px;padding-bottom:5px"><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#8f9194;font-size:14px;font-style:italic">D'autres mesures peuvent être appliquées par les autorités locales, veillez à vous renseigner avant de vous engager dans ce secteur.</p></td>
                      </tr>
                    </table></td>
                  </tr>

@@ -1,4 +1,4 @@
-name: Vérification alertes feu
+name: Vérification des alertes de risque incendie à J+1
 
 on:
   schedule:
