@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import axios from "axios";
 import dotenv from "dotenv";
 import { sendEmail } from "./communication.js";
+import { getUsersWithFilters } from "./users.js";
 
 dotenv.config();
 
@@ -77,7 +78,7 @@ export async function upsertFireAlerts() {
     return;
   }
 
-  const users = await getUsersForFireAlerts();
+  const users = await getUsersWithFilters({ fire_alerts: true });
   for (const alert of changedHighRiskDeps) {
     const usersToNotify = users.filter((u) => u.dept_code.includes(alert.code));
     usersToNotify.forEach(async (user) => {
@@ -97,20 +98,6 @@ export async function upsertFireAlerts() {
     });
   }
 }
-
-export async function getUsersForFireAlerts() {
-  const { data, error } = await supabase
-    .from("users")
-    .select("email, dept_code")
-    .eq("fire_alerts", true);
-
-  if (error) {
-    console.error("Erreur lors de la récupération des utilisateurs :", error);
-    return [];
-  }
-  return data;
-}
-
 function generateSubject(alert) {
   switch (alert.j1) {
     case 1:
@@ -126,7 +113,6 @@ function generateSubject(alert) {
   }
 }
 
-// Generates the content of the email based on the alert data with HTML formatting
 function generateContent(alert) {
   let risk, color, advise;
   switch (alert.j1) {
@@ -291,3 +277,5 @@ a[x-apple-data-detectors],
 </html>
   `;
 }
+
+upsertFireAlerts();
