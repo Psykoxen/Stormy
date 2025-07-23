@@ -122,15 +122,15 @@ function generateContent(alert) {
       break;
     case 2:
       risk = "modéré";
-      color = "#FFF200";
+      color = "#fac51c";
       break;
     case 3:
       risk = "élevé";
-      color = "#FF854A";
+      color = "#fba026";
       break;
     case 4:
       risk = "très élevé";
-      color = "#ED1C24";
+      color = "#eb4e49";
       break;
     default:
       risk = "inconnu";
@@ -146,7 +146,7 @@ function generateContent(alert) {
       break;
     case 3:
       advise =
-        "Les accès aux massifs sont déconseillés et travaux autorisés de 5h à 12h sous réserve dispositif de prévention et d'extinction.";
+        "Les accès aux massifs sont déconseillés et travaux autorisés de 5h à 12h sous réserve d'undispositif de prévention et d'extinction.";
       break;
     case 4:
       advise =
@@ -252,7 +252,7 @@ a[x-apple-data-detectors],
                   <td align="center" valign="top" style="padding:0;Margin:0;width:560px">
                    <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                      <tr>
-                      <td align="center" style="padding:0;Margin:0;padding-top:10px;padding-bottom:10px;font-size:0px"><img src="https://fviecfq.stripocdn.email/content/guids/CABINET_c48bd15f582d0aa5de2116e461847d54b29f984cdc74c69748500443233fcb7a/images/istockphoto1323529010612x612.jpg" alt="" width="100" class="adapt-img" style="display:block;font-size:14px;border:0;outline:none;text-decoration:none"></td>
+                      <td align="center" style="padding:0;Margin:0;padding-top:10px;padding-bottom:10px;font-size:0px"><img src="https://www.svgrepo.com/show/280527/shield.svg" alt="" width="100" class="adapt-img" style="display:block;font-size:14px;border:0;outline:none;text-decoration:none"></td>
                      </tr>
                      <tr>
                       <td align="center" style="padding:0;Margin:0;padding-bottom:10px"><h1 class="es-m-txt-c" style="Margin:0;font-family:arial, 'helvetica neue', helvetica, sans-serif;mso-line-height-rule:exactly;letter-spacing:0;font-size:46px;font-style:normal;font-weight:bold;line-height:46px;color:#333333">Risque incendie <span style="color:${color}">${risk}</span></h1></td>
