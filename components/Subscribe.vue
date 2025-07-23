@@ -1,14 +1,16 @@
 <template>
-  <div class="bg-white opacity-95 w-full h-full rounded-lg flex shadow-lg">
-    <div class="w-1/2 h-full flex items-center justify-center">
-      <h2 class="text-6xl font-black m-6">
-        Recevez les alertes météo et incendie directement par email, pour rester
-        informé au bon moment, où que vous soyez !
+  <div
+    class="bg-white opacity-95 w-full h-full rounded-lg flex lg:flex-row flex-col shadow-lg items-center"
+  >
+    <div class="lg:w-1/2 h-full flex items-center justify-center">
+      <h2 class="lg:text-6xl text-4xl text-justify font-black m-6">
+        Recevez les alertes météo et risques incendie directement par email,
+        pour rester informé où que vous soyez !
       </h2>
     </div>
-    <div class="w-1/2 h-full flex items-center justify-center flex-col">
+    <div class="lg:w-1/2 h-full flex items-center justify-center flex-col">
       <UForm
-        class="bg-white p-8 m-8 rounded-lg shadow-2xl/40 space-y-4 w-2/3 h-3/4 flex flex-col"
+        class="bg-white p-8 lg:m-8 m-6 rounded-lg shadow-2xl/40 space-y-4 lg:w-2/3 h-3/4 flex flex-col"
         :state="state"
         @submit="onSubmit"
       >
@@ -60,6 +62,8 @@ const state = reactive({
   departements: value,
 });
 
+const toast = useToast();
+
 const items = ref(departements);
 
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
@@ -74,6 +78,13 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         fire_alerts: state.fireRisk,
         warning_alerts: state.weatherAlert,
       },
+    });
+
+    toast.add({
+      title: "Inscription réussie",
+      description:
+        "Vous serez alerté par email pour les départements sélectionnés.",
+      icon: "i-lucide-check-circle",
     });
   } catch (error) {
     console.error(error);

@@ -1,6 +1,8 @@
 <template>
   <UApp>
-    <div class="w-screen h-screen bg-primary flex flex-col items-center p-52">
+    <div
+      class="min-w-screen lg:h-screen min-h-screen bg-primary flex flex-col items-center justify-center lg:p-52 p-8"
+    >
       <Subscribe />
       <Banner />
     </div>
