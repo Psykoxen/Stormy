@@ -3,6 +3,7 @@ import axios from "axios";
 import dotenv from "dotenv";
 import { sendEmail } from "./communication.js";
 import { getUsersWithFilters } from "./users.js";
+import { getWebhooksWithFilters } from "./webhooks.js";
 
 dotenv.config();
 
@@ -10,6 +11,14 @@ const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE
 );
+
+const tomorrow = new Date(Date.now() + 86400000);
+const tomorrow_long = tomorrow.toLocaleDateString("fr-FR", {
+  weekday: "long",
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
 
 export async function getFireAlerts() {
   const response = await axios.get(
@@ -24,7 +33,6 @@ export async function getFireAlerts() {
 
   const rawCsv = response.data;
 
-  // Parse CSV en objets JS
   const rows = rawCsv.trim().split("\n");
   const headers = rows.shift().split(";");
 
@@ -97,24 +105,86 @@ export async function upsertFireAlerts() {
       }
     });
   }
+
+  const webhooks = await getWebhooksWithFilters({ fire_alerts: true });
+  for (const alert of changedHighRiskDeps) {
+    const webhooksToNotify = webhooks.filter((w) =>
+      w.dept_code.includes(alert.code)
+    );
+    for (const webhook of webhooksToNotify) {
+      try {
+        await axios.post(
+          webhook.url,
+          {
+            cards: [
+              {
+                header: {
+                  title: `<b>🔥 Risque Incendie 🔥</b>`,
+                  subtitle: `<i>${tomorrow_long.charAt(0).toUpperCase() + tomorrow_long.slice(1)}</i>`,
+                },
+                sections: [
+                  {
+                    widgets: [
+                      {
+                        textParagraph: {
+                          text: generateWebhookMessage(alert),
+                        },
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        console.log(
+          `Webhook envoyé à ${webhook.url} pour le département ${alert.code}`
+        );
+      } catch (error) {
+        console.error(
+          `Erreur lors de l'envoi du webhook à ${webhook.url}:`,
+          error
+        );
+      }
+    }
+  }
 }
-function generateSubject(alert) {
+function generateWebhookMessage(alert) {
   switch (alert.j1) {
     case 1:
-      return `🟢 Alerte incendie - Risque faible pour le département ${alert.name} (${alert.code}) 🟢`;
+      return `<b>${alert.name} (${alert.code})</b> : Risque faible 🟢`;
     case 2:
-      return `🟡 Alerte incendie - Risque modéré pour le département ${alert.name} (${alert.code}) 🟡`;
+      return `<b>${alert.name} (${alert.code})</b> : Risque modéré 🟡`;
     case 3:
-      return `🟠 Alerte incendie - Risque élevé pour le département ${alert.name} (${alert.code}) 🟠`;
+      return `<b>${alert.name} (${alert.code})</b> : Risque élevé 🟠`;
     case 4:
-      return `🔴 Alerte incendie - Risque très élevé pour le département ${alert.name} (${alert.code}) 🔴`;
+      return `<b>${alert.name} (${alert.code})</b> : Risque très élevé 🔴`;
     default:
-      return `Alerte incendie - Risque inconnu pour le département ${alert.name} (${alert.code})`;
+      return `<b>${alert.name} (${alert.code})</b> : Risque inconnu ⚪`;
   }
 }
 
-function generateContent(alert) {
-  let risk, color, advise;
+function generateSubject(alert) {
+  switch (alert.j1) {
+    case 1:
+      return `🟢 Risque incendie ${tomorrow_long} - Risque faible pour le département ${alert.name} (${alert.code})`;
+    case 2:
+      return `🟡 Risque incendie ${tomorrow_long} - Risque modéré pour le département ${alert.name} (${alert.code})`;
+    case 3:
+      return `🟠 Risque incendie ${tomorrow_long} - Risque élevé pour le département ${alert.name} (${alert.code})`;
+    case 4:
+      return `🔴 Risque incendie ${tomorrow_long} - Risque très élevé pour le département ${alert.name} (${alert.code})`;
+    default:
+      return `⚪ Risque incendie ${tomorrow_long} - Risque inconnu pour le département ${alert.name} (${alert.code})`;
+  }
+}
+
+function generateSubject(alert) {
   switch (alert.j1) {
     case 1:
       risk = "faible";
@@ -146,7 +216,7 @@ function generateContent(alert) {
       break;
     case 3:
       advise =
-        "Les accès aux massifs sont déconseillés et travaux autorisés de 5h à 12h sous réserve d'undispositif de prévention et d'extinction.";
+        "Les accès aux massifs sont déconseillés et travaux autorisés de 5h à 12h sous réserve d'un dispositif de prévention et d'extinction.";
       break;
     case 4:
       advise =
