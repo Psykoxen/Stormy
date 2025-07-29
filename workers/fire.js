@@ -184,45 +184,33 @@ function generateSubject(alert) {
   }
 }
 
-function generateSubject(alert) {
+function generateContent(alert) {
   switch (alert.j1) {
     case 1:
       risk = "faible";
+      advise = "Aucune mesure particulière à prendre.";
       color = "#22b14C";
       break;
     case 2:
       risk = "modéré";
+      advise =
+        "Les accès aux massifs sont autorisés et les travaux autorisés avec dispositif de prévention et d'extinction approprié sous la responsabilité du chef de chantier";
       color = "#fac51c";
       break;
     case 3:
       risk = "élevé";
+      advise =
+        "Les accès aux massifs sont déconseillés et travaux autorisés de 5h à 12h sous réserve d'un dispositif de prévention et d'extinction.";
       color = "#fba026";
       break;
     case 4:
       risk = "très élevé";
+      advise =
+        "Les accès aux massifs sont interdits et les travaux sont interdits dans les espaces forestiers et 200m autour.";
       color = "#eb4e49";
       break;
     default:
       risk = "inconnu";
-  }
-
-  switch (alert.j1) {
-    case 1:
-      advise = "Aucune mesure particulière à prendre.";
-      break;
-    case 2:
-      advise =
-        "Les accès aux massifs sont autorisés et les travaux autorisés avec dispositif de prévention et d'extinction approprié sous la responsabilité du chef de chantier";
-      break;
-    case 3:
-      advise =
-        "Les accès aux massifs sont déconseillés et travaux autorisés de 5h à 12h sous réserve d'un dispositif de prévention et d'extinction.";
-      break;
-    case 4:
-      advise =
-        "Les accès aux massifs sont interdits et les travaux sont interdits dans les espaces forestiers et 200m autour.";
-      break;
-    default:
       advise = "Aucune information disponible pour ce niveau de risque.";
   }
 
