@@ -9,7 +9,9 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "start-fire": "node workers/fire.js"
+    "upsert-fire-alerts": "node workers/fire/upsert-fire-alerts.js",
+    "notify-fire-webhooks": "node workers/fire/notify-webhooks.js",
+    "notify-fire-users": "node workers/fire/notify-users.js"
   },
   "dependencies": {
     "@nuxt/content": "^3.6.3",

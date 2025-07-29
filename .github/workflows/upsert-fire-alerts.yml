@@ -1,4 +1,4 @@
-name: Vérification des alertes de risque incendie à J+1
+name: Check and Upsert Fire Alerts
 
 on:
   schedule:
@@ -28,4 +28,4 @@ jobs:
           FIRE_API_KEY: ${{ secrets.FIRE_API_KEY }}
           MAILER_API_KEY: ${{ secrets.MAILER_API_KEY }}
 
-        run: npm run start-fire
+        run: npm run upsert-fire-alerts

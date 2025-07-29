@@ -1,16 +1,6 @@
-import { createClient } from "@supabase/supabase-js";
-import axios from "axios";
-import dotenv from "dotenv";
-import { sendEmail } from "./communication.js";
-import { getUsersWithFilters } from "./users.js";
-import { getWebhooksWithFilters } from "./webhooks.js";
-
-dotenv.config();
-
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE
-);
+import { sendEmail } from "../lib/communication.js";
+import { getUpdatedFireAlerts } from "../lib/fire-alerts.js";
+import { getUsersWithFilters } from "../lib/users.js";
 
 const tomorrow = new Date(Date.now() + 86400000);
 const tomorrow_long = tomorrow.toLocaleDateString("fr-FR", {
@@ -20,74 +10,16 @@ const tomorrow_long = tomorrow.toLocaleDateString("fr-FR", {
   day: "numeric",
 });
 
-export async function getFireAlerts() {
-  const response = await axios.get(
-    `https://public-api.meteofrance.fr/public/DPMeteoForets/v1/carte/encours`,
-    {
-      headers: {
-        accept: "*/*",
-        apikey: process.env.FIRE_API_KEY,
-      },
-    }
-  );
+try {
+  const alerts = await getUpdatedFireAlerts();
 
-  const rawCsv = response.data;
-
-  const rows = rawCsv.trim().split("\n");
-  const headers = rows.shift().split(";");
-
-  const data = rows.map((row) => {
-    const values = row.split(";");
-    const obj = {};
-    headers.forEach((h, i) => {
-      obj[h] = values[i];
-    });
-    return obj;
-  });
-
-  return data;
-}
-
-export async function upsertFireAlerts() {
-  const alerts = await getFireAlerts();
-  const formattedAlerts = alerts.map((a) => ({
-    updated_at: a.reference_time,
-    code: a.dep_code,
-    name: a.dep_nom,
-    j1: parseInt(a.niveau_j1),
-    j2: parseInt(a.niveau_j2),
-  }));
-
-  const depCodes = formattedAlerts.map((a) => a.code);
-
-  const { data: existingAlerts, error: fetchError } = await supabase
-    .from("fire_alerts")
-    .select("code, updated_at, j1")
-    .in("code", depCodes);
-
-  if (fetchError) {
-    console.error("Erreur récupération données existantes:", fetchError);
-    return;
-  }
-
-  const changedHighRiskDeps = formattedAlerts.filter((a) => {
-    const old = existingAlerts.find((e) => e.code === a.code);
-    return old && old.updated_at !== a.updated_at && a.j1 > 1;
-  });
-
-  const { error: upsertError } = await supabase
-    .from("fire_alerts")
-    .upsert(formattedAlerts, {
-      onConflict: ["code"],
-    });
-
-  if (upsertError) {
-    console.error("Erreur upsert:", upsertError);
-    return;
+  if (!alerts || alerts.length === 0) {
+    console.log("No updated fire alerts found.");
+    process.exit(0);
   }
 
   const users = await getUsersWithFilters({ fire_alerts: true });
-  for (const alert of changedHighRiskDeps) {
+  for (const alert of alerts) {
     const usersToNotify = users.filter((u) => u.dept_code.includes(alert.code));
     usersToNotify.forEach(async (user) => {
       try {
@@ -98,75 +30,13 @@ export async function upsertFireAlerts() {
           generateContent(alert)
         );
       } catch (error) {
-        console.error(
-          `Erreur lors de l'envoi de l'email à ${user.email}:`,
-          error
-        );
+        console.error(`Error sending email to ${user.email}:`, error);
       }
     });
   }
-
-  const webhooks = await getWebhooksWithFilters({ fire_alerts: true });
-  for (const alert of changedHighRiskDeps) {
-    const webhooksToNotify = webhooks.filter((w) =>
-      w.dept_code.includes(alert.code)
-    );
-    for (const webhook of webhooksToNotify) {
-      try {
-        await axios.post(
-          webhook.url,
-          {
-            cards: [
-              {
-                header: {
-                  title: `<b>🔥 Risque Incendie 🔥</b>`,
-                  subtitle: `<i>${tomorrow_long.charAt(0).toUpperCase() + tomorrow_long.slice(1)}</i>`,
-                },
-                sections: [
-                  {
-                    widgets: [
-                      {
-                        textParagraph: {
-                          text: generateWebhookMessage(alert),
-                        },
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        console.log(
-          `Webhook envoyé à ${webhook.url} pour le département ${alert.code}`
-        );
-      } catch (error) {
-        console.error(
-          `Erreur lors de l'envoi du webhook à ${webhook.url}:`,
-          error
-        );
-      }
-    }
-  }
-}
-function generateWebhookMessage(alert) {
-  switch (alert.j1) {
-    case 1:
-      return `<b>${alert.name} (${alert.code})</b> : Risque faible 🟢`;
-    case 2:
-      return `<b>${alert.name} (${alert.code})</b> : Risque modéré 🟡`;
-    case 3:
-      return `<b>${alert.name} (${alert.code})</b> : Risque élevé 🟠`;
-    case 4:
-      return `<b>${alert.name} (${alert.code})</b> : Risque très élevé 🔴`;
-    default:
-      return `<b>${alert.name} (${alert.code})</b> : Risque inconnu ⚪`;
-  }
+} catch (err) {
+  console.error("❌ Error:", err.message);
+  process.exit(1);
 }
 
 function generateSubject(alert) {
@@ -185,6 +55,8 @@ function generateSubject(alert) {
 }
 
 function generateContent(alert) {
+  let risk, advise, color;
+
   switch (alert.j1) {
     case 1:
       risk = "faible";
@@ -335,5 +207,3 @@ a[x-apple-data-detectors],
 </html>
   `;
 }
-
-upsertFireAlerts();
