@@ -1,7 +1,9 @@
 import { readBody } from "h3";
 
 interface RequestBody {
-  email: string;
+  mode: "email" | "webhook";
+  url?: string;
+  email?: string;
   dept_code: string[];
   warning_alerts: boolean;
   fire_alerts: boolean;
@@ -19,6 +21,31 @@ const supabase = createClient(
 
 export default defineEventHandler(async (event) => {
   const body: RequestBody = await readBody(event);
-
-  await supabase.from("users").upsert(body);
+  try {
+    switch (body.mode) {
+      case "email":
+        await supabase.from("users").upsert({
+          email: body.email,
+          dept_code: body.dept_code,
+          warning_alerts: body.warning_alerts,
+          fire_alerts: body.fire_alerts,
+        });
+        break;
+      case "webhook":
+        await supabase.from("webhooks").upsert({
+          url: body.url,
+          dept_code: body.dept_code,
+          warning_alerts: body.warning_alerts,
+          fire_alerts: body.fire_alerts,
+        });
+        break;
+    }
+  } catch (error) {
+    console.error("Error processing subscription:", error);
+    throw createError({
+      statusCode: 500,
+      statusMessage: "Internal Server Error",
+      message: "Failed to process subscription request",
+    });
+  }
 });
