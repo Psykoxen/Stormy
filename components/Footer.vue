@@ -7,7 +7,7 @@
       >
     </p>
     <p class="text-xs opacity-75">
-      © {{ new Date().getFullYear() }} - MIT license
+      © {{ new Date().getFullYear() }} Alceva, Tous droits réservés
     </p>
   </div>
 </template>
