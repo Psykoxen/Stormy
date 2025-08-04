@@ -46,17 +46,34 @@ export async function getFireAlerts() {
 }
 
 export async function upsertFireAlerts(alerts) {
-  const { error: upsertError } = await supabase
+  const { data: existingAlerts, error } = await supabase
     .from("fire_alerts")
-    .upsert(alerts, {
-      onConflict: ["code"],
-    });
-  if (upsertError) {
-    console.error("Error upserting fire alerts:", upsertError);
-    throw upsertError;
+    .select("*");
+
+  if (error) throw error;
+
+  const changedAlerts = alerts.filter((alert) => {
+    const existing = existingAlerts.find((e) => e.code === alert.code);
+    if (!existing) return true;
+    return (
+      existing.j1 !== alert.j1 ||
+      existing.j2 !== alert.j2 ||
+      existing.updated_at !== alert.updated_at
+    );
+  });
+
+  if (changedAlerts.length > 0) {
+    const { error: upsertError } = await supabase
+      .from("fire_alerts")
+      .upsert(changedAlerts, {
+        onConflict: ["code"],
+      });
+    if (upsertError) throw upsertError;
+  } else {
+    console.log("✅ No changes detected in fire alerts.");
+    process.exit(1);
   }
 }
-
 export async function getUpdatedFireAlerts() {
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 
