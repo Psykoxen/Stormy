@@ -71,7 +71,7 @@ export async function upsertFireAlerts(alerts) {
     if (upsertError) throw upsertError;
   } else {
     console.log("✅ No changes detected in fire alerts.");
-    process.exit(1);
+    process.exit(78);
   }
 }
 export async function getUpdatedFireAlerts() {
