@@ -6,5 +6,5 @@ try {
   console.log("✅ Alerts up to date with success");
 } catch (err) {
   console.error("❌ Error:", err.message);
-  process.exit(1);
+  process.exit(78);
 }
