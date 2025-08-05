@@ -28,4 +28,4 @@ jobs:
           FIRE_API_KEY: ${{ secrets.FIRE_API_KEY }}
           MAILER_API_KEY: ${{ secrets.MAILER_API_KEY }}
 
-        run: npm run upsert-fire-alerts
+        run: npm run upsert-fire-alerts || exit 1; exit 78
