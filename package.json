@@ -1,40 +1,23 @@
 {
   "name": "stormy",
   "version": "1.0.0",
-  "private": true,
   "type": "module",
   "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
     "upsert-weather-alerts": "node workers/lib/weather-alerts.js",
     "upsert-fire-alerts": "node workers/fire/upsert-fire-alerts.js",
     "notify-fire-webhooks": "node workers/fire/notify-webhooks.js",
     "notify-fire-users": "node workers/fire/notify-users.js"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
   "dependencies": {
-    "@nuxt/content": "^3.6.3",
-    "@nuxt/eslint": "^1.5.2",
-    "@nuxt/fonts": "^0.11.4",
-    "@nuxt/icon": "^1.15.0",
-    "@nuxt/image": "^1.10.0",
-    "@nuxt/ui": "^3.2.0",
-    "@supabase/supabase-js": "^2.50.5",
-    "@tailwindcss/vite": "^4.1.11",
+    "@supabase/supabase-js": "^2.50.2",
     "axios": "^1.10.0",
-    "better-sqlite3": "^12.2.0",
-    "dotenv": "^17.2.0",
-    "eslint": "^9.30.1",
-    "lodash": "^4.17.21",
+    "dotenv": "^17.0.0",
     "mailersend": "^2.6.0",
     "nodemailer": "^7.0.4",
-    "nuxt": "^3.17.6",
-    "pg": "^8.16.3",
-    "tailwindcss": "^4.1.11",
-    "typescript": "^5.8.3",
-    "vue": "^3.5.17",
-    "vue-router": "^4.5.1"
+    "pg": "^8.16.3"
   }
 }
