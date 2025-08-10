@@ -28,4 +28,21 @@ jobs:
           FIRE_API_KEY: ${{ secrets.FIRE_API_KEY }}
           MAILER_API_KEY: ${{ secrets.MAILER_API_KEY }}
 
-        run: npm run upsert-fire-alerts || exit 1; exit 78
+        run: |
+          npm run upsert-fire-alerts || true
+        continue-on-error: true
+
+      - name: Notify users
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
+          MAILER_API_KEY: ${{ secrets.MAILER_API_KEY }}
+        run: |
+          npm run notify-fire-users
+
+      - name: Notify workflows
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
+        run: |
+          npm run notify-fire-webhooks
