@@ -5,14 +5,6 @@ import {
 } from "../lib/weather-alerts.js";
 import { getWebhooksWithFilters } from "../lib/webhooks.js";
 
-const tomorrow = new Date(Date.now() + 86400000);
-const tomorrow_long = tomorrow.toLocaleDateString("fr-FR", {
-  weekday: "long",
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
-
 try {
   await notifyEndingWeatherAlerts();
   await notifyStartingWeatherAlerts();
@@ -94,10 +86,7 @@ function formatEndingAlertMessage(alert) {
 
 async function notifyStartingWeatherAlerts() {
   const alerts = await getWeatherAlertStarting();
-  console.log("Starting weather alerts:", alerts);
-
   if (!alerts || alerts.length === 0) {
-    console.log("No starting weather alerts found.");
     process.exit(0);
   }
 
@@ -115,7 +104,8 @@ async function notifyStartingWeatherAlerts() {
             cardId: "alert-card",
             card: {
               header: {
-                title: `📢 Début de vigilance météorologique - ${alert.dpt} (${alert.code})`,
+                title: `📢 Début de vigilance météorologique`,
+                subtitle: `Département concerné : ${alert.dpt} (${alert.code})`,
               },
               sections: [
                 {
@@ -138,10 +128,8 @@ async function notifyStartingWeatherAlerts() {
 
 async function notifyEndingWeatherAlerts() {
   const alerts = await getWeatherAlertsEnding();
-  console.log("Ending weather alerts:", alerts);
 
   if (!alerts || alerts.length === 0) {
-    console.log("No ending weather alerts found.");
     process.exit(0);
   }
 
@@ -159,7 +147,8 @@ async function notifyEndingWeatherAlerts() {
             cardId: "alert-card",
             card: {
               header: {
-                title: `🔔 Fin de vigilance météorologique - ${alert.dpt} (${alert.code})`,
+                title: `🔔 Fin de vigilance météorologique`,
+                subtitle: `Département concerné : ${alert.dpt} (${alert.code})`,
               },
               sections: [
                 {

@@ -61,8 +61,6 @@ export async function upsertWeatherAlerts(alerts) {
 
   if (error) throw error;
 
-  console.log(alerts);
-
   const changedAlerts = alerts.filter((alert) => {
     const existing = existingAlerts.find(
       (e) => e.code == alert.code && e.phenom_id == alert.phenom_id
@@ -79,7 +77,6 @@ export async function upsertWeatherAlerts(alerts) {
   });
 
   if (changedAlerts.length > 0) {
-    console.log(`Found ${changedAlerts.length} changed weather alerts.`);
     const { error: upsertError } = await supabase
       .from("weather_alerts")
       .upsert(changedAlerts, {
