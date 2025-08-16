@@ -86,7 +86,7 @@
       </div>
     </div>
 
-    <template #body> </template>
+    <template #body><CGU /></template>
   </UModal>
 </template>
 
