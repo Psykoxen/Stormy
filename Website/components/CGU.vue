@@ -637,7 +637,7 @@
 
 <script lang="ts" setup></script>
 
-<style>
+<style scoped>
 p {
   margin: 0 2em;
 }
