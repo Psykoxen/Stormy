@@ -100,7 +100,7 @@ export async function getWeatherAlertStarting() {
   for (const alert of existingAlerts) {
     for (const timelap of alert.timelaps) {
       if (!timelap) continue;
-      if (timelap.color_id <= 1) continue; // Skip yellow, orange and red alerts
+      if (timelap.color_id <= 1) continue; // Skip green alerts
       const diffMs = new Date(timelap.begin_time).getTime() - Date.now();
       if (Math.abs(diffMs) <= 10 * 60 * 1000) {
         toSend.push({
@@ -127,7 +127,7 @@ export async function getWeatherAlertsEnding() {
   for (const alert of existingAlerts) {
     for (const timelap of alert.timelaps) {
       if (!timelap) continue;
-      if (timelap.color_id <= 1) continue; // Skip yellow, orange and red alerts
+      if (timelap.color_id <= 1) continue; // Skip green alerts
       const diffMs = new Date(timelap.end_time).getTime() - Date.now();
       if (Math.abs(diffMs) <= 10 * 60 * 1000) {
         toSend.push({
@@ -149,7 +149,3 @@ export async function getExistingWeatherAlerts() {
   if (error) throw error;
   return data;
 }
-
-// await upsertWeatherAlerts(await getWeatherAlerts());
-// await getWeatherAlertStarting();
-// await sendWeatherAlertsEnding();

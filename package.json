@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "type": "module",
   "scripts": {
-    "upsert-weather-alerts": "node workers/lib/weather-alerts.js",
+    "upsert-weather-alerts": "node workers/weather/upsert-weather-alerts.js",
     "notify-weather-webhooks": "node workers/weather/notify-webhooks.js",
     "upsert-fire-alerts": "node workers/fire/upsert-fire-alerts.js",
     "notify-fire-webhooks": "node workers/fire/notify-webhooks.js",

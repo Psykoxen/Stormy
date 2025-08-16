@@ -79,7 +79,7 @@
           </UCheckbox>
           <div class="flex justify-center">
             <UButton type="submit" class="w-content text-center">
-              Être Alerter !
+              Être Alerté !
             </UButton>
           </div>
         </UForm>

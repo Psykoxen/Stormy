@@ -87,7 +87,7 @@ function formatEndingAlertMessage(alert) {
 async function notifyStartingWeatherAlerts() {
   const alerts = await getWeatherAlertStarting();
   if (!alerts || alerts.length === 0) {
-    process.exit(0);
+    return;
   }
 
   const webhooks = await getWebhooksWithFilters({ warning_alerts: true });
@@ -130,7 +130,7 @@ async function notifyEndingWeatherAlerts() {
   const alerts = await getWeatherAlertsEnding();
 
   if (!alerts || alerts.length === 0) {
-    process.exit(0);
+    return;
   }
 
   const webhooks = await getWebhooksWithFilters({ warning_alerts: true });
