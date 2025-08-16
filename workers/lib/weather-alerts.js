@@ -93,8 +93,9 @@ export async function upsertWeatherAlerts(alerts) {
   }
 }
 
-export async function sendWeatherAlertStarting() {
+export async function getWeatherAlertStarting() {
   const existingAlerts = await getExistingWeatherAlerts();
+  const toSend = [];
   if (existingAlerts.length === 0) {
     console.log("❌ No existing weather alerts to send.");
     return;
@@ -105,16 +106,23 @@ export async function sendWeatherAlertStarting() {
       if (timelap.color_id <= 1) continue; // Skip yellow, orange and red alerts
       const diffMs = new Date(timelap.begin_time).getTime() - Date.now();
       if (Math.abs(diffMs) <= 10 * 60 * 1000) {
-        console.log(
-          `🔔 Début de l'alerte ${WeatherLevel[timelap.color_id]} ${WeatherAlert[alert.phenom_id]} pour le département ${alert.code}. Fin estimée ${new Date(timelap.end_time).toLocaleString()}`
-        );
+        toSend.push({
+          code: alert.code,
+          dpt: alert.name,
+          name: WeatherAlert[alert.phenom_id],
+          color: WeatherLevel[timelap.color_id],
+          starttime: timelap.begin_time,
+          endtime: timelap.end_time,
+        });
       }
     }
   }
+  return toSend;
 }
 
-export async function sendWeatherAlertsEnding() {
+export async function getWeatherAlertsEnding() {
   const existingAlerts = await getExistingWeatherAlerts();
+  const toSend = [];
   if (existingAlerts.length === 0) {
     console.log("❌ No existing weather alerts to send.");
     return;
@@ -125,12 +133,17 @@ export async function sendWeatherAlertsEnding() {
       if (timelap.color_id <= 1) continue; // Skip yellow, orange and red alerts
       const diffMs = new Date(timelap.end_time).getTime() - Date.now();
       if (Math.abs(diffMs) <= 10 * 60 * 1000) {
-        console.log(
-          `🔔 Fin de l'alerte ${WeatherLevel[timelap.color_id]} ${WeatherAlert[alert.phenom_id]} pour le département ${alert.code}.`
-        );
+        toSend.push({
+          code: alert.code,
+          dpt: alert.name,
+          name: WeatherAlert[alert.phenom_id],
+          color: WeatherLevel[timelap.color_id],
+          endtime: timelap.end_time,
+        });
       }
     }
   }
+  return toSend;
 }
 
 export async function getExistingWeatherAlerts() {
@@ -139,3 +152,7 @@ export async function getExistingWeatherAlerts() {
   if (error) throw error;
   return data;
 }
+
+// await upsertWeatherAlerts(await getWeatherAlerts());
+// await getWeatherAlertStarting();
+// await sendWeatherAlertsEnding();

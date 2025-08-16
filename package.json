@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "upsert-weather-alerts": "node workers/lib/weather-alerts.js",
+    "notify-weather-webhooks": "node workers/weather/notify-webhooks.js",
     "upsert-fire-alerts": "node workers/fire/upsert-fire-alerts.js",
     "notify-fire-webhooks": "node workers/fire/notify-webhooks.js",
     "notify-fire-users": "node workers/fire/notify-users.js"
@@ -16,6 +17,7 @@
     "@supabase/supabase-js": "^2.50.2",
     "axios": "^1.10.0",
     "dotenv": "^17.0.0",
+    "lodash": "^4.17.21",
     "mailersend": "^2.6.0",
     "nodemailer": "^7.0.4",
     "pg": "^8.16.3"
