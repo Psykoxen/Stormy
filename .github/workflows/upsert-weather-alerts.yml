@@ -1,0 +1,75 @@
+name: Check and Upsert Weather Alerts
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+jobs:
+  upsert:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Cache Node.js modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - run: npm install
+
+      - name: Run upsert
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
+          FIRE_API_KEY: ${{ secrets.FIRE_API_KEY }}
+          MAILER_API_KEY: ${{ secrets.MAILER_API_KEY }}
+        run: npm run upsert-weather-alerts || true
+        continue-on-error: true
+
+  # notify-users:
+  #   runs-on: ubuntu-latest
+  #   needs: upsert
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 20
+  #     - name: Restore cache
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: node_modules
+  #         key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+  #     - name: Notify users
+  #       env:
+  #         SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  #         SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
+  #         MAILER_API_KEY: ${{ secrets.MAILER_API_KEY }}
+  #       run: npm run notify-fire-users
+
+  notify-webhooks:
+    runs-on: ubuntu-latest
+    needs: upsert
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+      - name: Notify webhooks
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
+        run: npm run notify-weather-webhooks
