@@ -98,30 +98,37 @@ async function notifyStartingWeatherAlerts() {
     );
 
     for (const alert of alertsToSend) {
-      await axios.post(webhook.url, {
-        cardsV2: [
-          {
-            cardId: "alert-card",
-            card: {
-              header: {
-                title: `📢 Début de vigilance météorologique`,
-                subtitle: `Département concerné : ${alert.dpt} (${alert.code})`,
-              },
-              sections: [
-                {
-                  widgets: [
-                    {
-                      textParagraph: {
-                        text: formatStartingAlertMessage(alert),
-                      },
-                    },
-                  ],
+      try {
+        await axios.post(webhook.url, {
+          cardsV2: [
+            {
+              cardId: "alert-card",
+              card: {
+                header: {
+                  title: `📢 Début de vigilance météorologique`,
+                  subtitle: `Département concerné : ${alert.dpt} (${alert.code})`,
                 },
-              ],
+                sections: [
+                  {
+                    widgets: [
+                      {
+                        textParagraph: {
+                          text: formatStartingAlertMessage(alert),
+                        },
+                      },
+                    ],
+                  },
+                ],
+              },
             },
-          },
-        ],
-      });
+          ],
+        });
+      } catch (error) {
+        console.error(
+          `❌ Erreur lors de l'envoi de l'alerte pour le département ${alert.code} :`,
+          error.message
+        );
+      }
     }
   }
 }
@@ -141,30 +148,37 @@ async function notifyEndingWeatherAlerts() {
     );
 
     for (const alert of alertsToSend) {
-      await axios.post(webhook.url, {
-        cardsV2: [
-          {
-            cardId: "alert-card",
-            card: {
-              header: {
-                title: `🔔 Fin de vigilance météorologique`,
-                subtitle: `Département concerné : ${alert.dpt} (${alert.code})`,
-              },
-              sections: [
-                {
-                  widgets: [
-                    {
-                      textParagraph: {
-                        text: formatEndingAlertMessage(alert),
-                      },
-                    },
-                  ],
+      try {
+        await axios.post(webhook.url, {
+          cardsV2: [
+            {
+              cardId: "alert-card",
+              card: {
+                header: {
+                  title: `🔔 Fin de vigilance météorologique`,
+                  subtitle: `Département concerné : ${alert.dpt} (${alert.code})`,
                 },
-              ],
+                sections: [
+                  {
+                    widgets: [
+                      {
+                        textParagraph: {
+                          text: formatEndingAlertMessage(alert),
+                        },
+                      },
+                    ],
+                  },
+                ],
+              },
             },
-          },
-        ],
-      });
+          ],
+        });
+      } catch (error) {
+        console.error(
+          `❌ Erreur lors de l'envoi de l'alerte pour le département ${alert.code} :`,
+          error.message
+        );
+      }
     }
   }
 }
