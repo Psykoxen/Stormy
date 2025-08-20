@@ -21,22 +21,22 @@ function formatStartingAlertMessage(alert) {
   switch (alert.color.toLowerCase()) {
     case "vert":
       emoji = "🟢";
-      exaColor = "#00ff00";
+      exaColor = "#4cbe87";
       colorLabel = "VIGILANCE VERTE";
       break;
     case "jaune":
       emoji = "🟡";
-      exaColor = "#ffff00";
+      exaColor = "#ecba49";
       colorLabel = "VIGILANCE JAUNE";
       break;
     case "orange":
       emoji = "🟠";
-      exaColor = "#ff7f00";
+      exaColor = "#fc824e";
       colorLabel = "VIGILANCE ORANGE";
       break;
     case "rouge":
       emoji = "🔴";
-      exaColor = "#ff0000";
+      exaColor = "#d63a4e";
       colorLabel = "VIGILANCE ROUGE";
       break;
   }
@@ -44,6 +44,7 @@ function formatStartingAlertMessage(alert) {
   return `${emoji} <font color="${exaColor}"><b>${colorLabel}</b></font> pour <b>${
     alert.name
   }</b><br><i>Fin prévue le ${new Date(alert.endtime).toLocaleString("fr-FR", {
+    timeZone: "Europe/Paris",
     weekday: "long",
     day: "numeric",
     month: "long",
