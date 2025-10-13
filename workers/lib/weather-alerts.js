@@ -90,7 +90,7 @@ export async function upsertWeatherAlerts(alerts) {
   }
 }
 
-export async function getWeatherAlertStarting() {
+export async function getWeatherAlertStarting(delay) {
   const existingAlerts = await getExistingWeatherAlerts();
   const toSend = [];
   if (existingAlerts.length === 0) {
@@ -102,7 +102,34 @@ export async function getWeatherAlertStarting() {
       if (!timelap) continue;
       if (timelap.color_id <= 1) continue; // Skip green alerts
       const diffMs = new Date(timelap.begin_time).getTime() - Date.now();
-      if (Math.abs(diffMs) <= 10 * 60 * 1000) {
+      if (Math.abs(diffMs) <= delay) {
+        toSend.push({
+          code: alert.code,
+          dpt: alert.name,
+          name: WeatherAlert[alert.phenom_id],
+          color: WeatherLevel[timelap.color_id],
+          starttime: timelap.begin_time,
+          endtime: timelap.end_time,
+        });
+      }
+    }
+  }
+  return toSend;
+}
+
+export async function getWeatherAlertStartingInDelay(delay) {
+  const existingAlerts = await getExistingWeatherAlerts();
+  const toSend = [];
+  if (existingAlerts.length === 0) {
+    console.log("❌ No existing weather alerts to send.");
+    return;
+  }
+  for (const alert of existingAlerts) {
+    for (const timelap of alert.timelaps) {
+      if (!timelap) continue;
+      if (timelap.color_id <= 1) continue; // Skip green alerts
+      const diffMs = new Date(timelap.begin_time).getTime() - Date.now();
+      if (Math.abs(diffMs) <= delay && diffMs >= 0) {
         toSend.push({
           code: alert.code,
           dpt: alert.name,

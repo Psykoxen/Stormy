@@ -1,7 +1,7 @@
 import axios from "axios";
 import {
-  getWeatherAlertStarting,
   getWeatherAlertsEnding,
+  getWeatherAlertStarting,
 } from "../lib/weather-alerts.js";
 import { getWebhooksWithFilters } from "../lib/webhooks.js";
 
@@ -9,7 +9,7 @@ try {
   await notifyEndingWeatherAlerts();
   await notifyStartingWeatherAlerts();
 } catch (err) {
-  console.error("❌ Error:", err.message);
+  console.error("❌ Error:", err.message, err.stack);
   process.exit(1);
 }
 
@@ -86,7 +86,7 @@ function formatEndingAlertMessage(alert) {
 }
 
 async function notifyStartingWeatherAlerts() {
-  const alerts = await getWeatherAlertStarting();
+  const alerts = await getWeatherAlertStarting(10 * 60 * 1000);
   if (!alerts || alerts.length === 0) {
     return;
   }
