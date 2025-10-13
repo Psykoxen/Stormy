@@ -1,91 +1,90 @@
 <template>
-  <UModal title="Politique de Confidentialité" v-model="RGPD" fullscreen>
-    <div
-      class="bg-white opacity-95 w-full h-full rounded-lg flex lg:flex-row flex-col shadow-lg items-center"
-    >
-      <div class="lg:w-1/2 lg:h-full flex flex-col justify-center">
-        <h1
-          class="text-center text-primary lg:text-6xl text-5xl font-black lg:pt-0 pt-6"
-        >
-          STORMY!
-        </h1>
-        <h2 class="lg:text-5xl text-4xl text-justify font-black m-6">
-          Recevez les alertes météo et risques incendie directement par email,
-          pour rester informé où que vous soyez !
-        </h2>
-      </div>
-      <div class="lg:w-1/2 lg:h-full flex items-center justify-center flex-col">
-        <UForm
-          class="bg-white p-8 lg:m-8 m-6 rounded-lg shadow-2xl/40 space-y-4 lg:w-2/3 lg:h-3/4 flex flex-col"
-          :state="state"
-          @submit="onSubmit"
-        >
-          <h1 class="text-2xl font-bold mb-4">SOYEZ NOTIFIÉ EN TEMPS RÉEL</h1>
-          <URadioGroup
-            v-model="state.mode"
-            color="primary"
-            variant="table"
-            default-value="email"
-            orientation="horizontal"
-            :items="canal"
-            size="xs"
-            :ui="{
-              item: 'w-full',
-            }"
-          />
-          <UInput
-            v-if="state.mode === 'email'"
-            v-model="state.email"
-            name="email"
-            type="email"
-            placeholder="Adresse email"
-            trailing-icon="i-lucide-at-sign"
-          />
-          <UInput
-            v-else
-            v-model="state.webhook"
-            name="webhook"
-            type="url"
-            placeholder="https://example.com/webhook"
-            trailing-icon="i-lucide-link"
-          />
-          <USelectMenu
-            v-model="value"
-            value-key="value"
-            multiple
-            name="departements"
-            :items="items"
-            placeholder="Sélectionnez vos départements"
-          />
-          <div class="flex justify-evenly">
-            <USwitch label="Risque incendie" name="fire-risk" default-value />
-            <USwitch
-              disabled
-              label="Vigilance météorologique"
-              description="Disponible prochainement"
-            />
-          </div>
-          <UCheckbox required v-model="state.CGU">
-            <template #label>
-              J’accepte que mes données soient utilisées conformément à la
-              <button
-                type="button"
-                class="text-primary underline hover:opacity-80"
-                @click="RGPD = true"
-              >
-                politique de confidentialité</button
-              >.
-            </template>
-          </UCheckbox>
-          <div class="flex justify-center">
-            <UButton type="submit" class="w-content text-center">
-              Être Alerté !
-            </UButton>
-          </div>
-        </UForm>
-      </div>
+  <div
+    class="bg-white opacity-95 w-full h-full rounded-lg flex lg:flex-row flex-col shadow-lg items-center"
+  >
+    <div class="lg:w-1/2 lg:h-full flex flex-col justify-center">
+      <h1
+        class="text-center text-primary lg:text-6xl text-5xl font-black lg:pt-0 pt-6"
+      >
+        STORMY!
+      </h1>
+      <h2 class="lg:text-5xl text-4xl text-justify font-black m-6">
+        Recevez les alertes météo et risques incendie directement par email,
+        pour rester informé où que vous soyez !
+      </h2>
     </div>
-
+    <div class="lg:w-1/2 lg:h-full flex items-center justify-center flex-col">
+      <UForm
+        class="bg-white p-8 lg:m-8 m-6 rounded-lg shadow-2xl/40 space-y-4 lg:w-2/3 lg:h-3/4 flex flex-col"
+        :state="state"
+        @submit="onSubmit"
+      >
+        <h1 class="text-2xl font-bold mb-4">SOYEZ NOTIFIÉ EN TEMPS RÉEL</h1>
+        <URadioGroup
+          v-model="state.mode"
+          color="primary"
+          variant="table"
+          default-value="email"
+          orientation="horizontal"
+          :items="canal"
+          size="xs"
+          :ui="{
+            item: 'w-full',
+          }"
+        />
+        <UInput
+          v-if="state.mode === 'email'"
+          v-model="state.email"
+          name="email"
+          type="email"
+          placeholder="Adresse email"
+          trailing-icon="i-lucide-at-sign"
+        />
+        <UInput
+          v-else
+          v-model="state.webhook"
+          name="webhook"
+          type="url"
+          placeholder="https://example.com/webhook"
+          trailing-icon="i-lucide-link"
+        />
+        <USelectMenu
+          v-model="value"
+          value-key="value"
+          multiple
+          name="departements"
+          :items="items"
+          placeholder="Sélectionnez vos départements"
+        />
+        <div class="flex justify-evenly">
+          <USwitch label="Risque incendie" name="fire-risk" default-value />
+          <USwitch
+            disabled
+            label="Vigilance météorologique"
+            description="Disponible prochainement"
+          />
+        </div>
+        <UCheckbox required v-model="state.CGU">
+          <template #label>
+            J’accepte que mes données soient utilisées conformément à la
+            <button
+              type="button"
+              class="text-primary underline hover:opacity-80"
+              @click="RGPD = true"
+            >
+              politique de confidentialité</button
+            >.
+          </template>
+        </UCheckbox>
+        <div class="flex justify-center">
+          <UButton type="submit" class="w-content text-center">
+            Être Alerté !
+          </UButton>
+        </div>
+      </UForm>
+    </div>
+  </div>
+  <UModal title="Politique de Confidentialité" v-model="RGPD" fullscreen>
     <template #body><CGU /></template>
   </UModal>
 </template>
