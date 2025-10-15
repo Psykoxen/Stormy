@@ -1,32 +1,21 @@
-console.log(`Chargement des alertes météo...`);
 import dotenv from "dotenv";
-import { EmailParams, MailerSend, Recipient, Sender } from "mailersend";
+import { Resend } from "resend";
 
 dotenv.config();
 
-export async function sendEmail(
-  recipients_email,
-  recipients_name,
-  subject,
-  content
-) {
-  const mailerSend = new MailerSend({
-    apiKey: process.env.MAILER_API_KEY,
+const resend = new Resend(process.env.MAILER_API_KEY);
+
+export async function sendEmail(recipients_email, subject, content) {
+  const { data, error } = await resend.emails.send({
+    from: "Stormy Fire Alerts <alerts@stormy.avoillot.com>",
+    to: [recipients_email],
+    subject: subject,
+    html: content,
   });
 
-  const sentFrom = new Sender(
-    "test@test-xkjn41m7jq64z781.mlsender.net",
-    "Stormy Fire Alerts"
-  );
+  if (error) {
+    return console.error({ error });
+  }
 
-  const recipients = [new Recipient(recipients_email, recipients_name)];
-
-  const emailParams = new EmailParams()
-    .setFrom(sentFrom)
-    .setTo(recipients)
-    .setReplyTo(sentFrom)
-    .setSubject(subject)
-    .setHtml(content);
-
-  return await mailerSend.email.send(emailParams);
+  console.log({ data });
 }
