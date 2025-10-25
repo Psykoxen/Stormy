@@ -4,7 +4,7 @@
   </h2>
   <UTimeline
     color="neutral"
-    :default-value="0"
+    :default-value="1"
     :items="items"
     class="w-3/4 lg:w-96 lg:translate-x-[48%]"
     :ui="{
@@ -29,10 +29,17 @@ const items = ref<TimelineItem[]>([
     icon: "i-lucide-rocket",
   },
   {
-    date: "S2 2025",
+    date: "Septembre 2025",
     title: "Ajout de la vigilance météorologique",
     description:
       "Conception et développement de la fonctionnalité de vigilance météorologique. Intégration des alertes météo.",
+    icon: "i-lucide-cloud-sun-rain",
+  },
+  {
+    date: "S2 2025",
+    title: "Visualisation des données en temps réel",
+    description:
+      "Conception et développement de la fonctionnalité de visualisation des données en temps réel sur le tableau de bord.",
     icon: "i-lucide-code-xml",
   },
 ]);
