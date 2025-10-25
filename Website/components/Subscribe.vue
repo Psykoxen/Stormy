@@ -1,8 +1,8 @@
 <template>
-  <UModal title="Politique de Confidentialité" v-model="RGPD" fullscreen>
-    <div
-      class="bg-white opacity-95 w-full h-full rounded-lg flex lg:flex-row flex-col shadow-lg items-center"
-    >
+  <div
+    class="bg-white opacity-95 w-full h-full rounded-lg flex flex-col shadow-lg items-center"
+  >
+    <div class="w-full h-full flex lg:flex-row flex-col">
       <div class="lg:w-1/2 lg:h-full flex flex-col justify-center">
         <h1
           class="text-center text-primary lg:text-6xl text-5xl font-black lg:pt-0 pt-6"
@@ -85,7 +85,14 @@
         </UForm>
       </div>
     </div>
-
+    <div class="mb-4 flex flex-row items-center space-x-2">
+      <UIcon name="i-lucide-compass" class="size-5 text-primary" />
+      <a href="/dashboard" target="_blank" class="text-primary underline">
+        Afficher le dashboard
+      </a>
+    </div>
+  </div>
+  <UModal title="Politique de Confidentialité" v-model="RGPD" fullscreen>
     <template #body><CGU /></template>
   </UModal>
 </template>
