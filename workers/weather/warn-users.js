@@ -1,89 +1,171 @@
 import { sendEmail } from "../lib/communication.js";
-import { getUpdatedFireAlerts } from "../lib/fire-alerts.js";
 import { getUsersWithFilters } from "../lib/users.js";
-
-const tomorrow = new Date(Date.now() + 86400000);
-const tomorrow_long = tomorrow.toLocaleDateString("fr-FR", {
-  weekday: "long",
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
+import { getWeatherAlertStartingInDelay } from "../lib/weather-alerts.js";
 
 try {
-  const alerts = await getUpdatedFireAlerts();
-
-  if (!alerts || alerts.length === 0) {
-    console.log("No updated fire alerts found.");
-    process.exit(0);
-  }
-
-  const users = await getUsersWithFilters({ fire_alerts: true });
-  for (const alert of alerts) {
-    const usersToNotify = users.filter((u) => u.dept_code.includes(alert.code));
-    usersToNotify.forEach(async (user) => {
-      try {
-        await sendEmail(
-          user.email,
-          generateSubject(alert),
-          generateContent(alert, user.uuid)
-        );
-      } catch (error) {
-        console.error(`Error sending email to ${user.email}:`, error);
-      }
-    });
-  }
+  await notifyNext12HoursWeatherAlerts();
 } catch (err) {
-  console.error("❌ Error:", err.message);
+  console.error("❌ Error:", err.message, err.stack);
   process.exit(1);
 }
 
-function generateSubject(alert) {
-  switch (alert.j1) {
-    case 1:
-      return `🟢 Risque incendie ${tomorrow_long} - Risque faible pour le département ${alert.name} (${alert.code})`;
-    case 2:
-      return `🟡 Risque incendie ${tomorrow_long} - Risque modéré pour le département ${alert.name} (${alert.code})`;
-    case 3:
-      return `🟠 Risque incendie ${tomorrow_long} - Risque élevé pour le département ${alert.name} (${alert.code})`;
-    case 4:
-      return `🔴 Risque incendie ${tomorrow_long} - Risque très élevé pour le département ${alert.name} (${alert.code})`;
-    default:
-      return `⚪ Risque incendie ${tomorrow_long} - Risque inconnu pour le département ${alert.name} (${alert.code})`;
+function formatRecapAlertMessage(alerts) {
+  const messages = [];
+  for (const alert of alerts) {
+    let emoji = "⚪";
+    let exaColor = "#ffffff";
+    let colorLabel = "Inconnu";
+
+    switch (alert.color.toLowerCase()) {
+      case "vert":
+        emoji = "🟢";
+        exaColor = "#4cbe87";
+        colorLabel = "VIGILANCE VERTE";
+        break;
+      case "jaune":
+        emoji = "🟡";
+        exaColor = "#ecba49";
+        colorLabel = "VIGILANCE JAUNE";
+        break;
+      case "orange":
+        emoji = "🟠";
+        exaColor = "#fc824e";
+        colorLabel = "VIGILANCE ORANGE";
+        break;
+      case "rouge":
+        emoji = "🔴";
+        exaColor = "#d63a4e";
+        colorLabel = "VIGILANCE ROUGE";
+        break;
+    }
+
+    messages.push(
+      `${emoji} <font color="${exaColor}"><b>${colorLabel}</b></font> pour <b>${
+        alert.name
+      }</b><br><i>De ${new Date(alert.starttime).toLocaleString("fr-FR", {
+        timeZone: "Europe/Paris",
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })} à ${new Date(alert.endtime).toLocaleString("fr-FR", {
+        timeZone: "Europe/Paris",
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })}</i>`
+    );
+  }
+  return messages;
+}
+
+async function notifyNext12HoursWeatherAlerts() {
+  const alerts = await getWeatherAlertStartingInDelay(12 * 60 * 60 * 1000);
+  if (!alerts || alerts.length === 0) {
+    return;
+  }
+
+  const users = await getUsersWithFilters({ warning_alerts: true });
+  for (const user of users) {
+    const deptCodes = user.dept_code || [];
+    const alertsToSend = alerts.filter((alert) =>
+      deptCodes.includes(alert.code)
+    );
+
+    if (alertsToSend.length === 0) {
+      continue;
+    }
+
+    try {
+      await sendEmail(
+        user.email,
+        "Alerte météo - Vigilances prévues durant les 12 prochaines heures",
+        generateContent(alertsToSend, user.uuid)
+      );
+      // await axios.post(user.webhook.url, {
+      //   cardsV2: [
+      //     {
+      //       cardId: "alert-card",
+      //       card: {
+      //         header: {
+      //           title: `⏰ Vigilances prévues durant les 12 prochaines heures`,
+      //           subtitle: `Département concerné : ${alertsToSend[0].dpt} (${alertsToSend[0].code})`,
+      //         },
+      //         sections: formatRecapAlertMessage(alertsToSend).map(
+      //           (message) => ({
+      //             widgets: [
+      //               {
+      //                 textParagraph: {
+      //                   text: message,
+      //                 },
+      //               },
+      //             ],
+      //           })
+      //         ),
+      //       },
+      //     },
+      //   ],
+      // });
+    } catch (error) {
+      console.error(
+        `❌ Erreur lors de l'envoi de l'alerte pour le département ${alertsToSend[0].code} :`,
+        error.message,
+        error.stack
+      );
+    }
   }
 }
 
-function generateContent(alert, userId) {
-  let risk, advise, color;
+function generateContent(alerts, userId) {
+  let alertsHtmlTable = "";
 
-  switch (alert.j1) {
-    case 1:
-      risk = "faible";
-      advise = "Aucune mesure particulière à prendre.";
-      color = "#22b14C";
-      break;
-    case 2:
-      risk = "modéré";
-      advise =
-        "Les accès aux massifs sont autorisés et les travaux autorisés avec dispositif de prévention et d'extinction approprié sous la responsabilité du chef de chantier";
-      color = "#fac51c";
-      break;
-    case 3:
-      risk = "élevé";
-      advise =
-        "Les accès aux massifs sont déconseillés et travaux autorisés de 5h à 12h sous réserve d'un dispositif de prévention et d'extinction.";
-      color = "#fba026";
-      break;
-    case 4:
-      risk = "très élevé";
-      advise =
-        "Les accès aux massifs sont interdits et les travaux sont interdits dans les espaces forestiers et 200m autour.";
-      color = "#eb4e49";
-      break;
-    default:
-      risk = "inconnu";
-      advise = "Aucune information disponible pour ce niveau de risque.";
-  }
+  console.log(alerts);
+
+  alerts.forEach((alert) => {
+    let color, risk, temporality;
+    switch (alert.color.toLowerCase()) {
+      case "vert":
+        color = "🟢";
+        break;
+      case "jaune":
+        color = "🟡";
+        break;
+      case "orange":
+        color = "🟠";
+        break;
+      case "rouge":
+        color = "🔴";
+        break;
+      default:
+        color = "⚪";
+    }
+
+    alertsHtmlTable += `
+    <tr>
+      <td align="center" style="padding:5px 40px;border:1px solid #8f9194;width:10%;">
+        <p style="margin:0;font-family:Arial, Helvetica, sans-serif;font-size:14px;color:#333;">
+          ${color}
+        </p>
+      </td>
+      <td align="center" style="padding:5px 40px;border:1px solid #8f9194;width:45%;">
+        <p style="margin:0;font-family:Arial, Helvetica, sans-serif;font-size:14px;color:#333;">
+          ${alert.name}
+        </p>
+      </td>
+      <td align="center" style="padding:5px 40px;border:1px solid #8f9194;width:45%;">
+        <p style="margin:0;font-family:Arial, Helvetica, sans-serif;font-size:14px;color:#333;">
+         ${alert.starttime} à ${alert.endtime}
+        </p>
+      </td>
+    </tr>
+    `;
+  });
+  console.log(alertsHtmlTable);
 
   return `
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -181,14 +263,16 @@ a[x-apple-data-detectors],
                   <td align="center" valign="top" style="padding:0;Margin:0;width:560px">
                    <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                      <tr>
-                      <td align="center" style="padding:0;Margin:0;padding-top:10px;padding-bottom:10px;font-size:0px"><img src="https://www.svgrepo.com/show/280527/shield.svg" alt="" width="100" class="adapt-img" style="display:block;font-size:14px;border:0;outline:none;text-decoration:none"></td>
+                      <td align="center" style="padding:0;Margin:0;padding-top:10px;padding-bottom:10px;font-size:0px"><img src="https://www.svgrepo.com/show/284574/storm-rain.svg" alt="" width="100" class="adapt-img" style="display:block;font-size:14px;border:0;outline:none;text-decoration:none"></td>
                      </tr>
                      <tr>
-                      <td align="center" style="padding:0;Margin:0;padding-bottom:10px"><h1 class="es-m-txt-c" style="Margin:0;font-family:arial, 'helvetica neue', helvetica, sans-serif;mso-line-height-rule:exactly;letter-spacing:0;font-size:46px;font-style:normal;font-weight:bold;line-height:46px;color:#333333">Risque incendie <span style="color:${color}">${risk}</span></h1></td>
+                      <td align="center" style="padding:0;Margin:0;padding-bottom:10px"><h1 class="es-m-txt-c" style="Margin:0;font-family:arial, 'helvetica neue', helvetica, sans-serif;mso-line-height-rule:exactly;letter-spacing:0;font-size:46px;font-style:normal;font-weight:bold;line-height:46px;color:#333333">Synthèse des vigilances</h1></td>
                      </tr>
                      <tr>
-                      <td align="center" class="es-m-p0r es-m-p0l" style="Margin:0;padding-top:5px;padding-right:40px;padding-bottom:5px;padding-left:40px"><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">${advise}</p></td>
-                     </tr>
+                     <table cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+                      ${alertsHtmlTable}
+                      </table>
+                    </tr>
                      <tr>
                       <td align="center" style="padding:0;Margin:0;padding-top:10px;padding-bottom:5px"><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#8f9194;font-size:14px;font-style:italic">D'autres mesures peuvent être appliquées par les autorités locales, veillez à vous renseigner avant de vous engager dans ce secteur.</p></td>
                      </tr>

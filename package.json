@@ -5,6 +5,8 @@
   "scripts": {
     "upsert-weather-alerts": "node workers/weather/upsert-weather-alerts.js",
     "notify-weather-webhooks": "node workers/weather/notify-webhooks.js",
+    "warn-weather-webhooks": "node workers/weather/warn-webhooks.js",
+    "warn-weather-users": "node workers/weather/warn-users.js",
     "upsert-fire-alerts": "node workers/fire/upsert-fire-alerts.js",
     "notify-fire-webhooks": "node workers/fire/notify-webhooks.js",
     "notify-fire-users": "node workers/fire/notify-users.js"
