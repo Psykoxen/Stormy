@@ -7,6 +7,15 @@
       <p>France</p>
     </div>
 
-    <p>26 oct. 2025</p>
+    <p>
+      {{
+        new Date().toLocaleDateString("fr-FR", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      }}
+    </p>
   </div>
 </template>

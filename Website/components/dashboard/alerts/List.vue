@@ -9,9 +9,9 @@
       <div
         v-for="value in filteredAlerts"
         :key="value.id"
-        class="bg-[#394452] w-full p-3 my-2 rounded border-2"
+        class="bg-[#394452] w-full p-3 my-2 rounded opacity-90"
         :style="{
-          borderColor: colorMap[value.timelaps[0]?.color_id] || '#394452',
+          backgroundColor: colorMap[value.timelaps[0]?.color_id] || '#394452',
         }"
       >
         <p>{{ value.code }} - {{ value.name }}</p>
