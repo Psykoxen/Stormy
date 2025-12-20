@@ -27,62 +27,77 @@
     </div>
 
     <!-- Filtres -->
-    <div
-      class="flex flex-col items-center justify-between bg-[#323e50] w-1/3 text-white rounded-sm px-3"
-    >
-      <UButton
-        icon="i-lucide-wind"
-        class="w-full mt-2"
-        :variant="selectedPhenom === 'VENT' ? 'solid' : 'outline'"
-        @click="toggleFilter('VENT')"
+    <div class="flex flex-col items-center gap-4 w-1/3">
+      <div
+        class="flex flex-col items-center justify-between bg-[#323e50] w-full text-white rounded-sm px-3"
       >
-        Vent
-      </UButton>
+        <UButton
+          icon="i-lucide-wind"
+          class="w-full mt-2"
+          :variant="selectedPhenom === 'VENT' ? 'solid' : 'outline'"
+          @click="toggleFilter('VENT')"
+        >
+          Vent
+        </UButton>
 
-      <UButton
-        icon="i-lucide-cloud-rain-wind"
-        class="w-full mt-2"
-        :variant="selectedPhenom === 'PLUIE-INONDATION' ? 'solid' : 'outline'"
-        @click="toggleFilter('PLUIE-INONDATION')"
-      >
-        Pluie - Inondation
-      </UButton>
+        <UButton
+          icon="i-lucide-cloud-rain-wind"
+          class="w-full mt-2"
+          :variant="selectedPhenom === 'PLUIE-INONDATION' ? 'solid' : 'outline'"
+          @click="toggleFilter('PLUIE-INONDATION')"
+        >
+          Pluie - Inondation
+        </UButton>
 
-      <UButton
-        icon="i-lucide-zap"
-        class="w-full mt-2"
-        :variant="selectedPhenom === 'ORAGES' ? 'solid' : 'outline'"
-        @click="toggleFilter('ORAGES')"
-      >
-        Orages
-      </UButton>
+        <UButton
+          icon="i-lucide-zap"
+          class="w-full mt-2"
+          :variant="selectedPhenom === 'ORAGES' ? 'solid' : 'outline'"
+          @click="toggleFilter('ORAGES')"
+        >
+          Orages
+        </UButton>
 
-      <UButton
-        icon="i-lucide-cloud-snow"
-        class="w-full mt-2"
-        :variant="selectedPhenom === 'NEIGE-VERGLAS' ? 'solid' : 'outline'"
-        @click="toggleFilter('NEIGE-VERGLAS')"
-      >
-        Neige - Verglas
-      </UButton>
+        <UButton
+          icon="i-lucide-cloud-snow"
+          class="w-full mt-2"
+          :variant="selectedPhenom === 'NEIGE-VERGLAS' ? 'solid' : 'outline'"
+          @click="toggleFilter('NEIGE-VERGLAS')"
+        >
+          Neige - Verglas
+        </UButton>
 
-      <UButton
-        icon="i-lucide-thermometer-sun"
-        class="w-full mt-2"
-        :variant="selectedPhenom === 'CANICULE' ? 'solid' : 'outline'"
-        @click="toggleFilter('CANICULE')"
-      >
-        Canicule
-      </UButton>
+        <UButton
+          icon="i-lucide-thermometer-sun"
+          class="w-full mt-2"
+          :variant="selectedPhenom === 'CANICULE' ? 'solid' : 'outline'"
+          @click="toggleFilter('CANICULE')"
+        >
+          Canicule
+        </UButton>
 
-      <UButton
-        icon="i-lucide-thermometer-snowflake"
-        class="w-full mt-2"
-        :variant="selectedPhenom === 'GRAND FROID' ? 'solid' : 'outline'"
-        @click="toggleFilter('GRAND FROID')"
+        <UButton
+          icon="i-lucide-thermometer-snowflake"
+          class="w-full mt-2"
+          :variant="selectedPhenom === 'GRAND FROID' ? 'solid' : 'outline'"
+          @click="toggleFilter('GRAND FROID')"
+        >
+          Grand Froid
+        </UButton>
+      </div>
+
+      <div
+        class="flex flex-col items-center justify-between bg-[#323e50] w-full text-white rounded-sm px-3"
       >
-        Grand Froid
-      </UButton>
+        <UButton
+          icon="i-lucide-thermometer-snowflake"
+          class="w-full mt-2"
+          :variant="selectedPhenom === 'RHÔNE' ? 'solid' : 'outline'"
+          @click="toggleArea('RHÔNE')"
+        >
+          Rhône
+        </UButton>
+      </div>
     </div>
   </div>
 </template>
@@ -102,18 +117,36 @@ const colorMap: Record<number, string> = {
 
 // Filtre actif
 const selectedPhenom = ref<string | null>(null);
+const selectedArea = ref<string | null>(null);
 
 // Fonction pour (dés)activer le filtre
 function toggleFilter(phenom: string) {
   selectedPhenom.value = selectedPhenom.value === phenom ? null : phenom;
 }
 
+function toggleArea(area: string) {
+  selectedArea.value = selectedArea.value === area ? null : area;
+  console.log("Selected Area:", selectedArea.value);
+}
+
 // Liste filtrée des alertes
 const filteredAlerts = computed(() => {
   if (!alerts.value) return [];
-  if (!selectedPhenom.value) return alerts.value;
+  if (!selectedPhenom.value && !selectedArea.value) {
+    return alerts.value;
+  }
+  if (!selectedPhenom.value)
+    return alerts.value.filter(
+      (a: any) => a.name?.toUpperCase() === selectedArea.value
+    );
+  if (!selectedArea.value)
+    return alerts.value.filter(
+      (a: any) => a.phenom_id?.toUpperCase() === selectedPhenom.value
+    );
   return alerts.value.filter(
-    (a: any) => a.phenom_id?.toUpperCase() === selectedPhenom.value
+    (a: any) =>
+      a.phenom_id?.toUpperCase() === selectedPhenom.value &&
+      a.name?.toUpperCase() === selectedArea.value
   );
 });
 </script>
